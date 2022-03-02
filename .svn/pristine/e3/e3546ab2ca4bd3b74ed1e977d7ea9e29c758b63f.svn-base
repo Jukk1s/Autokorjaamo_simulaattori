@@ -1,0 +1,298 @@
+package simu.view;
+
+import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
+import simu.framework.Kello;
+import simu.model.Asiakas;
+import simu.model.Palvelupiste;
+import simu.model.Pisteet;
+import testi.VisuaalinenSimulaattori;
+
+public class SimulaattoriMainWindowController {
+	
+	private VisuaalinenSimulaattori simulaattori;
+	private boolean simulaatioKaynnissa = false;
+	
+	private String kuvaPolku = "images/Emotion_";
+	
+	private Palvelupiste[] palveluPisteet;
+	
+	private int vanhaTyytyvaisuus;
+
+	//Simulaattorin aika-asetukset
+	@FXML
+	private TextField avaamis;
+	@FXML
+	private TextField sulkemis;
+	@FXML
+	private TextField paivat;
+	@FXML
+	private TextField viive;
+	
+	//Korjaamon asetukset
+	@FXML
+	private TextField korjaamopisteet;
+	@FXML
+	private TextField tyontekijat;
+	@FXML
+	private TextField asiakkaidenAsetus;
+	
+	//Simulaation visuaalisointi
+	@FXML
+	private ImageView tyytyvaisuusKuva;
+	@FXML
+	private Canvas canvas;
+	@FXML
+	private Text tyytyvaisuusPros;
+	@FXML
+	private Text asiakkaat;
+	@FXML
+	private Text pisteet;
+	@FXML
+	private Text kello;
+	@FXML
+	private Text paiva;
+	@FXML 
+	private Text tulotKentta;
+	@FXML
+	private ListView palvelupisteet;
+	@FXML
+	private ListView rahaHistoria;
+	@FXML
+	private Button viivePlusNappi;
+	@FXML
+	private Button viiveMiinusNappi;
+	@FXML
+	private Button pysauta;
+	@FXML
+	private Button jatka;
+	@FXML
+	private Button lopeta;
+	
+	@FXML
+	private Text PalvelupisteTekijat;
+	@FXML
+	private Text PalvelupisteTeho;
+	@FXML
+	private Text PalvelupisteTuloth;
+	@FXML
+	private Text PalvelupisteAsiakkaat;
+	@FXML
+	private Text PalvelupisteJonossa;
+	@FXML
+	private Text PalvelupisteMeneillaan;
+	
+	@FXML
+	public void HallOfFame() {
+		simulaattori.avaaHallOfFame();
+	}
+	
+	public void avaaTulokset() {
+		simulaattori.avaaTulokset();
+	}
+	
+	
+	@FXML
+	public void kasvataViivetta() {
+		if(simulaattori!=null && simulaatioKaynnissa) {
+			simulaattori.viivePlus();
+		}
+	}
+	
+	@FXML
+	public void vahennaViivetta() {
+		if(simulaattori!=null && simulaatioKaynnissa) {
+			simulaattori.viiveMiinus();
+		}
+	}
+	
+	@FXML
+	public void handleKaynnista() {
+		if(!simulaatioKaynnissa) {
+			vanhaTyytyvaisuus = 0;
+			disableEdit();
+			rahaHistoria.getItems().clear();
+			simulaatioKaynnissa = true;
+			int avaamisAika, sulkemisAika, paivienMaara, viiveenMaara, pisteidenMaara, tyontekijoidenMaara;
+			double asiakasH;
+			try {
+				avaamisAika = Integer.parseInt(avaamis.getText());
+				sulkemisAika = Integer.parseInt(sulkemis.getText());
+				paivienMaara = Integer.parseInt(paivat.getText());
+				viiveenMaara = Integer.parseInt(viive.getText());
+				pisteidenMaara = Integer.parseInt(korjaamopisteet.getText());
+				tyontekijoidenMaara = Integer.parseInt(tyontekijat.getText());
+				asiakasH = Double.parseDouble(asiakkaidenAsetus.getText());
+				
+				simulaattori.kaynnistaSimulaatio(avaamisAika, sulkemisAika, paivienMaara, viiveenMaara, pisteidenMaara, tyontekijoidenMaara, asiakasH, this);
+			} catch (NumberFormatException e) {
+				simulaatioKaynnissa = false;
+				System.err.println("Joku syötteistä ei ollut muunnettavissa kokonaisluvuksi...");
+			}
+		}
+	}
+	
+	public void stopSimulaatio() {
+		simulaatioKaynnissa = false;
+		enableEdit();
+	}
+	
+	public void paivitaArvot() {
+		Pisteet tempPisteet = Pisteet.getInstance();
+		tyytyvaisuusPros.setText(Integer.toString(tempPisteet.getKeskiTyytyvaisyys()));
+		asiakkaat.setText(Integer.toString(tempPisteet.getAsiakkaat())+"/"+Integer.toString(Asiakas.getLkm()));
+		pisteet.setText(Integer.toString(tempPisteet.getKokPisteet()));
+		kello.setText(Kello.getInstance().getAikaKello());
+		paiva.setText(Integer.toString(Kello.getInstance().getPaiva()));
+		tulotKentta.setText(Integer.toString(tempPisteet.getTulotMiinusMenot()));
+		
+		if(vanhaTyytyvaisuus != tempPisteet.getKeskiTyytyvaisyys()) {
+			vanhaTyytyvaisuus = tempPisteet.getKeskiTyytyvaisyys();
+			paivitaNaama();
+		}
+		
+		paivitaPPNakyma();
+		
+	}
+	
+	private void paivitaNaama() {
+		try {
+			if(vanhaTyytyvaisuus >= 80)
+				tyytyvaisuusKuva.setImage(new Image(kuvaPolku+"1.png"));
+			else if(vanhaTyytyvaisuus >= 60)
+				tyytyvaisuusKuva.setImage(new Image(kuvaPolku+"2.png"));
+			else if(vanhaTyytyvaisuus >= 40)
+				tyytyvaisuusKuva.setImage(new Image(kuvaPolku+"3.png"));
+			else if(vanhaTyytyvaisuus >= 20)
+				tyytyvaisuusKuva.setImage(new Image(kuvaPolku+"4.png"));
+			else
+				tyytyvaisuusKuva.setImage(new Image(kuvaPolku+"5.png"));
+		} catch (Exception e) {
+			System.err.println("Tyytyväisyyden indikaattori kuvaa ei voitu ladata...");
+		}
+	}
+	
+	public void paivitaPPNakyma() {
+		if(palvelupisteet.getItems()!=null) {
+			int index = palvelupisteet.getSelectionModel().getSelectedIndex();
+			if(index < 0)
+				index = 0;
+			index++;
+			PalvelupisteTekijat.setText(Integer.toString(palveluPisteet[index].getTyontekijat()));;
+			PalvelupisteTeho.setText(Integer.toString(palveluPisteet[index].getTyontehokkuus()));;
+			PalvelupisteTuloth.setText(Double.toString(palveluPisteet[index].getTuntiTulo()));;
+			PalvelupisteAsiakkaat.setText(Integer.toString(palveluPisteet[index].getAsiakkaat()));;
+			PalvelupisteJonossa.setText(Integer.toString(palveluPisteet[index].getJononPituus()));
+			PalvelupisteMeneillaan.setText(palveluPisteet[index].getDuuni());;
+		}
+	}
+	
+	public void setPalvelupisteet(Palvelupiste[] pPisteet) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				palveluPisteet = pPisteet;
+				palvelupisteet.getItems().clear();
+				for(int i = 1; i < pPisteet.length; i++) {
+				 palvelupisteet.getItems().add(pPisteet[i]);
+				}
+				palvelupisteet.setOnMouseClicked(new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent event) {
+						paivitaPPNakyma();
+					}
+				});
+			}
+		});
+		
+		
+	}
+	
+	public void disableEdit() {
+		avaamis.setEditable(false);
+		sulkemis.setEditable(false);
+		paivat.setEditable(false);
+		viive.setEditable(false);
+		korjaamopisteet.setEditable(false);
+		tyontekijat.setEditable(false);
+		asiakkaidenAsetus.setEditable(false);
+		
+		viivePlusNappi.setDisable(false);
+		viiveMiinusNappi.setDisable(false);
+		pysauta.setDisable(false);
+		jatka.setDisable(false);
+		lopeta.setDisable(false);
+	}
+	
+	public void enableEdit() {
+		avaamis.setEditable(true);
+		sulkemis.setEditable(true);
+		paivat.setEditable(true);
+		viive.setEditable(true);
+		korjaamopisteet.setEditable(true);
+		tyontekijat.setEditable(true);
+		asiakkaidenAsetus.setEditable(true);
+		
+		viivePlusNappi.setDisable(true);
+		viiveMiinusNappi.setDisable(true);
+		pysauta.setDisable(true);
+		jatka.setDisable(true);
+		lopeta.setDisable(true);
+	}
+	
+	public void setSyoteArvot(int viiveM, int korjaamopisteetL, int tyontekijatL, double asiakkaatH) {
+		Kello k = Kello.getInstance();
+		avaamis.setText(Integer.toString(k.getAvaamisAika()));
+		sulkemis.setText(Integer.toString(k.getSulkemisAika()));
+		paivat.setText(Integer.toString(k.getPaivat()));
+		viive.setText(Integer.toString(viiveM));
+		korjaamopisteet.setText(Integer.toString(korjaamopisteetL));
+		tyontekijat.setText(Integer.toString(tyontekijatL));
+		asiakkaidenAsetus.setText(Double.toString(asiakkaatH));
+		System.out.println(asiakkaatH);
+	}
+	
+	public void setViive(int viiveM) {
+		viive.setText(Integer.toString(viiveM));
+	}
+	
+	public void setArvot(int tyytyvaisuus, int asiakkaidenMaara, int kokAsiakkaat, int pisteidenMaara, Palvelupiste[] pp) {
+		tyytyvaisuusPros.setText(Integer.toString(tyytyvaisuus));
+		asiakkaat.setText(Integer.toString(asiakkaidenMaara)+"/"+Integer.toString(kokAsiakkaat));
+		pisteet.setText(Integer.toString(pisteidenMaara));
+	}
+	
+	public void lisaaRahaTapahtuma(String raha) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				rahaHistoria.getItems().add(raha);
+			}
+		});
+	}
+	
+	public void setSimulaattori(VisuaalinenSimulaattori simulaattori) {
+		this.simulaattori = simulaattori;
+	}
+	
+	public void pauseS() {
+		simulaattori.pauseS();
+	}
+	
+	public void continueS() {
+		simulaattori.continueS();
+	}
+	
+	public void stopS() {
+		simulaattori.stopS();
+	}
+}

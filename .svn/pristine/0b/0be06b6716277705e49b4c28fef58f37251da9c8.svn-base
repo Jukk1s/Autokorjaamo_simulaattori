@@ -1,0 +1,16 @@
+package simu.model;
+
+// TODO:
+// Tapahtumien tyypit määritellään simulointimallin vaatimusten perusteella
+public enum TapahtumanTyyppi {
+	ARR1,
+	DEP1,//Renkaiden vaihto
+	DEP2,//Tuulilasin korjaus
+	DEP3,//Öljyn vaihto
+	DEP4,//Renkaiden vaihto
+	DEP5,//Ilmastoinnin täyttö
+	DEP6,//Pienet korjaukset
+	DEP7,//Isot korjaukset
+	DEP8//Katsastus
+
+}

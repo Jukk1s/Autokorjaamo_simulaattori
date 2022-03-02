@@ -1,0 +1,15 @@
+package simu.model;
+
+public class TapahtumanOminaisuudet {
+	private int pisteet;
+	private int keskimAikaMin;
+	
+	public TapahtumanOminaisuudet(int pisteet, int keskimAikaMin) {
+		this.pisteet = pisteet;
+		this.keskimAikaMin = keskimAikaMin;
+	}
+	
+	public int getPisteet() {return pisteet;}
+	public int getAika() {return keskimAikaMin;}
+
+}

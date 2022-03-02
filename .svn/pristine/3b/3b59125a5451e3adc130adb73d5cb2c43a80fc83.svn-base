@@ -1,0 +1,87 @@
+package simu.framework;
+
+import simu.model.TapahtumanTyyppi;
+import simu.model.TapahtumanOminaisuudet;
+
+public class Tapahtuma implements Comparable<Tapahtuma> {
+	
+		
+	private TapahtumanTyyppi tyyppi;
+	private double aika;
+	private int paiva;
+	
+	public Tapahtuma(TapahtumanTyyppi tyyppi, double aika){
+		Kello kello = Kello.getInstance();
+		this.tyyppi = tyyppi;
+		this.aika = aika;
+		this.paiva = kello.getPaiva(); //Haetaan simulaation tämän hetkinen päivä
+		while(this.aika > kello.getSulkemisAikaMinuutteina()) { //Jos uusi tapahtumaika menee yli päivän sulkemisajan
+			this.paiva++; //Korotetaan päivää yhdellä
+			//Siirretään aikaa niin, että jos ylimääräistä aikaa seuraavalle päivälle esim. 60min, niin
+			//lisätään se alkamisajan päälle
+			this.aika = this.aika - kello.getSulkemisAikaMinuutteina() + kello.getAvaamisAikaMinuutteina();
+			//Jos tapahtuman kesto enemmän kuin yksi työpäivä, osaa while loop ratkaista tapahtumalle loppumisajan
+		}
+	}
+	
+	public void setTyyppi(TapahtumanTyyppi tyyppi) {
+		this.tyyppi = tyyppi;
+	}
+	public TapahtumanTyyppi getTyyppi() {
+		return tyyppi;
+	}
+	public void setAika(double aika) {
+		this.aika = aika;
+	}
+	public double getAika() {
+		return aika;
+	}
+	public int getPaiva() {
+		return paiva;
+	}
+	
+	public TapahtumanOminaisuudet getOminaisuudet() {
+		TapahtumanOminaisuudet ominaisuudet;
+		switch(tyyppi) {
+			case DEP1:
+				ominaisuudet = new TapahtumanOminaisuudet(10,20);
+				break;
+			case DEP2:
+				ominaisuudet = new TapahtumanOminaisuudet(21,45);
+				break;
+			case DEP3:
+				ominaisuudet = new TapahtumanOminaisuudet(5,10);
+				break;
+			case DEP4:
+				ominaisuudet = new TapahtumanOminaisuudet(16,30);
+				break;
+			case DEP5:
+				ominaisuudet = new TapahtumanOminaisuudet(8,15);
+				break;
+			case DEP6:
+				ominaisuudet = new TapahtumanOminaisuudet(18,30);
+				break;
+			case DEP7:
+				ominaisuudet = new TapahtumanOminaisuudet(35,90);
+				break;
+			case DEP8:
+				ominaisuudet = new TapahtumanOminaisuudet(25,60);
+				break;
+			default:
+				ominaisuudet = new TapahtumanOminaisuudet(0,0);
+				break;
+		}
+		return ominaisuudet;
+	}
+
+	@Override
+	public int compareTo(Tapahtuma arg) {
+		if (this.aika < arg.aika) return -1;
+		else if (this.aika > arg.aika) return 1;
+		return 0;
+	}
+	
+	
+	
+
+}

@@ -1,0 +1,90 @@
+package simu.view;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
+import simu.framework.Kello;
+import simu.model.Asiakas;
+import simu.model.Pisteet;
+import testi.VisuaalinenSimulaattori;
+import testi.Visuaalitesti;
+
+public class SimulaattoriMainWindowController {
+	
+	private VisuaalinenSimulaattori simulaattori;
+	private boolean simulaatioKaynnissa = false;
+
+	@FXML
+	private TextField avaamis;
+	@FXML
+	private TextField sulkemis;
+	@FXML
+	private TextField paivat;
+	@FXML
+	private TextField viive;
+	@FXML
+	private TextField korjaamopisteet;
+	@FXML
+	private TextField tyontekijat;
+	@FXML
+	private ImageView tyytyvaisuusKuva;
+	@FXML
+	private Text tyytyvaisuusPros;
+	@FXML
+	private Text asiakkaat;
+	@FXML
+	private Text pisteet;
+	@FXML
+	private Text kello;
+	@FXML
+	private Text paiva;
+	
+	@FXML
+	public void handleKaynnista() {
+		if(!simulaatioKaynnissa) {
+			simulaatioKaynnissa = true;
+			int avaamisAika, sulkemisAika, paivienMaara, viiveenMaara, pisteidenMaara, tyontekijoidenMaara;
+			try {
+				avaamisAika = Integer.parseInt(avaamis.getText());
+				sulkemisAika = Integer.parseInt(sulkemis.getText());
+				paivienMaara = Integer.parseInt(paivat.getText());
+				viiveenMaara = Integer.parseInt(viive.getText());
+				pisteidenMaara = Integer.parseInt(korjaamopisteet.getText());
+				tyontekijoidenMaara = Integer.parseInt(tyontekijat.getText());
+				
+				//Vältytään javaFx poikkeuksilta jos viive ei ole liian pieni
+				if(viiveenMaara < 2)
+					viiveenMaara = 2;
+				
+				simulaattori.kaynnistaSimulaatio(avaamisAika, sulkemisAika, paivienMaara, viiveenMaara, pisteidenMaara, tyontekijoidenMaara, this);
+			} catch (NumberFormatException e) {
+				simulaatioKaynnissa = false;
+				System.err.println("Joku syötteistä ei ollut muunnettavissa kokonaisluvuksi...");
+			}
+		}
+	}
+	
+	public void stopSimulaatio() {
+		simulaatioKaynnissa = false;
+	}
+	
+	public void paivitaArvot() {
+		Pisteet tempPisteet = Pisteet.getInstance();
+		tyytyvaisuusPros.setText(Integer.toString(tempPisteet.getKeskiTyytyvaisyys()));
+		asiakkaat.setText(Integer.toString(tempPisteet.getAsiakkaat())+"/"+Integer.toString(Asiakas.getLkm()));
+		pisteet.setText(Integer.toString(tempPisteet.getTulotMiinusMenot()));
+		kello.setText(Kello.getInstance().getAikaKello());
+		paiva.setText(Integer.toString(Kello.getInstance().getPaiva()));
+	}
+	
+	public void setArvot(int tyytyvaisuus, int asiakkaidenMaara, int kokAsiakkaat, int pisteidenMaara) {
+		tyytyvaisuusPros.setText(Integer.toString(tyytyvaisuus));
+		asiakkaat.setText(Integer.toString(asiakkaidenMaara)+"/"+Integer.toString(kokAsiakkaat));
+		pisteet.setText(Integer.toString(pisteidenMaara));
+	}
+	
+	public void setSimulaattori(VisuaalinenSimulaattori simulaattori) {
+		this.simulaattori = simulaattori;
+	}
+}

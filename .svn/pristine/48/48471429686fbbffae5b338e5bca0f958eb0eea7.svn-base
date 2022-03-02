@@ -1,0 +1,97 @@
+package simu.model;
+
+import eduni.distributions.Negexp;
+import eduni.distributions.Normal;
+import simu.framework.Kello;
+import simu.framework.Moottori;
+import simu.framework.Saapumisprosessi;
+import simu.framework.Tapahtuma;
+
+public class OmaMoottori extends Moottori{
+	
+	private Saapumisprosessi saapumisprosessi;
+	
+	
+	public OmaMoottori(){
+			
+		palvelupisteet = new Palvelupiste[3];
+	
+		palvelupisteet[0]=new Palvelupiste(new Normal(10,6), tapahtumalista, TapahtumanTyyppi.DEP1);
+		palvelupisteet[1]=new Palvelupiste(new Normal(10,10), tapahtumalista, TapahtumanTyyppi.DEP2);
+		palvelupisteet[2]=new Palvelupiste(new Normal(5,3), tapahtumalista, TapahtumanTyyppi.DEP3);
+		
+		saapumisprosessi = new Saapumisprosessi(new Negexp(15,5), tapahtumalista, TapahtumanTyyppi.ARR1);
+
+	}
+
+	
+	@Override
+	protected void alustukset() {
+		saapumisprosessi.generoiSeuraava(); // Ensimmäinen saapuminen järjestelmään
+	}
+	
+	
+	@Override
+	protected void suoritaTapahtuma(Tapahtuma t){  // B-vaiheen tapahtumat
+		
+		if(t.getTyyppi()==TapahtumanTyyppi.ARR1) {
+			palvelupisteet[0].lisaaJonoon(new Asiakas());	
+			saapumisprosessi.generoiSeuraava();	
+		} else {
+			//Käydään kaikki palvelupisteet paitsi indeksin "0", eli
+			//vastaanotto
+			Palvelupiste lyhyin = palvelupisteet[1];
+			for(int i = 1; i < palvelupisteet.length; i++) {
+				if(lyhyin.getJononPituus()<palvelupisteet[i].getJononPituus())
+					lyhyin = palvelupisteet[i];
+			}
+			Asiakas a = palvelupisteet[0].otaJonosta();
+			lyhyin.lisaaJonoon(a);
+		}
+
+		/*
+		Asiakas a;
+		switch (t.getTyyppi()){
+			
+			case ARR1: palvelupisteet[0].lisaaJonoon(new Asiakas());	
+				       saapumisprosessi.generoiSeuraava();
+				break;
+			case DEP1: a = palvelupisteet[0].otaJonosta();
+				   	   palvelupisteet[1].lisaaJonoon(a);
+				break;
+			case DEP2: a = palvelupisteet[1].otaJonosta();
+				   	   palvelupisteet[2].lisaaJonoon(a);
+				break;  
+			case DEP3: 
+				       a = palvelupisteet[2].otaJonosta();
+					   a.setPoistumisaika(Kello.getInstance().getAika());
+			           a.raportti();
+		}	*/
+	}
+	
+	public static double arvoAika(double keskiarvo, double varianssi) {
+		Normal normal = new Normal(keskiarvo, varianssi);
+		double aika = normal.sample();
+		return aika;
+	}
+
+	
+	@Override
+	protected void tulokset() {	
+		
+		int tiskiJonossa = palvelupisteet[0].getJononPituus();
+		int paljonoissa = 0;
+		for(int i = 1; i < palvelupisteet.length; i++) {
+			paljonoissa+=palvelupisteet[i].getJononPituus();
+		}
+		
+		System.out.println("Simulointi päättyi kello " + Kello.getInstance().getAikaKello());
+		System.out.println("Autokorjaamo ansaitsi "+Pisteet.getInstance().getPisteet()+" pistettä");
+		System.out.println("Asiakkaita yhteensä " + Asiakas.getLkm()+", asiakkaita poistui: "+Pisteet.getInstance().getAsiakkaat());
+		System.out.println("Asiakkaita jäi tiskin jonoon " + tiskiJonossa +", asiakkaita korjaamon jonoissa: "+paljonoissa);
+		System.out.println("Tyytyväisyyden keskiarvo: "+Pisteet.getInstance().getKeskiTyytyvaisyys()+"%");
+		
+	}
+
+	
+}

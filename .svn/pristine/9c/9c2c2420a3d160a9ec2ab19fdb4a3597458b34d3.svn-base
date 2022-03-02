@@ -1,0 +1,40 @@
+package simu.framework;
+
+import java.util.PriorityQueue;
+
+import simu.model.Pisteet;
+import simu.model.TapahtumanTyyppi;
+
+public class Tapahtumalista {
+	private PriorityQueue<Tapahtuma> lista = new PriorityQueue<Tapahtuma>();
+	private int anteeksiAnnettavaAika = 30;
+	
+	public Tapahtumalista(){
+	 
+	}
+	
+	public Tapahtuma poista(){
+		Trace.out(Trace.Level.INFO,"Tapahtumalistasta poisto " + lista.peek());
+		TapahtumanTyyppi tyyppi = lista.peek().getTyyppi();
+		
+		if(lista.peek()!=null && tyyppi!=TapahtumanTyyppi.ARR1){//Jos listassa on tapahtuma, haetaan tapahtuman ominaisuudet -> pisteet
+			int tyytyvaisuus = 100;
+			Pisteet.getInstance().lisaaPisteita(lista.peek().getPisteet());
+			
+			if(Tapahtuma.getKeskimAika(tyyppi) < Kello.getInstance().getAika() - lista.peek().getAika() + anteeksiAnnettavaAika) {
+				tyytyvaisuus -= (20 * ((Kello.getInstance().getAika() - lista.peek().getAika()) / Tapahtuma.getKeskimAika(tyyppi)));
+			}
+			Pisteet.getInstance().lisaaTyytyvaisyys(tyytyvaisuus);
+		}
+		return lista.remove();
+	}
+	
+	public void lisaa(Tapahtuma t){
+		lista.add(t);
+	}
+	
+	public double getSeuraavanAika(){
+		return lista.peek().getAika();
+	}
+	
+}

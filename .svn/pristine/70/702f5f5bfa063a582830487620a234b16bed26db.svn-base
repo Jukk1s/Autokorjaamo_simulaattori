@@ -1,0 +1,53 @@
+package simu.model;
+
+public class Pisteet {
+	
+	private int pisteet;
+	private int tyytyvaisyys;
+	private int asiakas;
+	private static Pisteet instanssi;
+
+	
+	private Pisteet() {
+		this.pisteet = 0;
+		this.asiakas = 0;
+		this.tyytyvaisyys = 0;
+	}
+	
+	public static Pisteet getInstance() {
+		if (instanssi == null) {
+			instanssi = new Pisteet();
+		}
+		return instanssi;
+	}
+	
+	public void lisaaPisteita(int p) {
+		pisteet += p;
+	}
+	
+	public int returnTyytyvaisyys() {
+		return Math.round(tyytyvaisyys/asiakas);
+	}
+	
+	public void lisaaTyytyvaisyys(int t) {
+		tyytyvaisyys += t;
+		asiakas++;
+	}
+
+	public int getTyytyvaisyys() {
+		return tyytyvaisyys;
+	}
+
+	public void setTyytyvaisyys(int tyytyvaisyys) {
+		this.tyytyvaisyys = tyytyvaisyys;
+	}
+
+	public int getPisteet() {
+		return pisteet;
+	}
+
+	public void setPisteet(int pisteet) {
+		this.pisteet = pisteet;
+	}
+
+}

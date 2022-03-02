@@ -1,0 +1,61 @@
+package simu.view;
+
+import java.util.ArrayList;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
+import simu.framework.Tietokanta;
+import simu.model.Tulos;
+
+public class TuloksetFXMLController {
+	
+	private ArrayList<Tulos> tulokset = new ArrayList<>();
+	
+	public TuloksetFXMLController() {
+		tulokset = new Tietokanta().haeTulokset();
+	}
+
+	@FXML
+	private TextField pvm;
+	@FXML
+	private TextField keskraha;
+	@FXML
+	private TextField keskasiakkaat;
+	@FXML
+	private TextField keskpisteet;
+	@FXML
+	private TextField tyytyvaisuus;
+	@FXML
+	private TextField palvelupisteet;
+	@FXML
+	private TextField tyontekijat;
+	@FXML
+	private TextField raha;
+	@FXML
+	private TextField asiakkaat;
+	@FXML
+	private TextField pisteet;
+	@FXML
+	private TextField avaamisaika;
+	@FXML
+	private TextField sulkemisaika;
+	@FXML
+	private TextField paivat;
+	
+	@FXML
+	public void suodataRaha() {
+		if(tulokset != null) {
+			
+		}
+	}
+	
+	@FXML
+	public void suodataPisteet() {
+		
+	}
+	
+	@FXML
+	public void suodataAsiakkaat() {
+		
+	}
+}

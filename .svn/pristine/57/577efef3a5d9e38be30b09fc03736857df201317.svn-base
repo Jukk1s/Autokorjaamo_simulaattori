@@ -1,0 +1,73 @@
+package simu.framework;
+
+public class Kello {
+
+	private double aika; // Minuutteja
+	private int paiva;
+	private int avaamisAika; // Avaamis aika tunteina
+	private int sulkemisAika; // Sulkemis aika tunteina
+	private int paivat;
+	private static Kello instanssi;
+	
+	private Kello(){
+		aika = 0;
+	}
+	
+	public static Kello getInstance(){
+		if (instanssi == null){
+			instanssi = new Kello();	
+		}
+		return instanssi;
+	}
+	
+	public void setAika(double aika){
+		this.aika = aika;
+	}
+
+	public double getAika(){
+		return aika;
+	}
+	
+	public void setAvaamisAika(int a) {
+		avaamisAika = a;
+	}
+	
+	public void setSulkemisAika(int a) {
+		sulkemisAika = a;
+	}
+	
+	public void setPaivat(int a) {
+		paivat = a;
+	}
+	
+	public int getAvaamisAika() {
+		return avaamisAika;
+	}
+	
+	public int getSulkemisAika() {
+		return sulkemisAika;
+	}
+	
+	public int getAvaamisAikaMinuutteina() {
+		return avaamisAika * 60;
+	}
+	
+	public int getSulkemisAikaMinuutteina() {
+		return sulkemisAika * 60;
+	}
+	
+	public int getPaiva() {
+		int paivanPituus = (sulkemisAika - avaamisAika)*60;
+		return ((int)(aika)/paivanPituus);
+	}
+	
+	public int getPaivat() {
+		return paivat;
+	}
+	
+	
+	public void setPaiva(int p) {
+		paiva = p;
+	}
+}
+	

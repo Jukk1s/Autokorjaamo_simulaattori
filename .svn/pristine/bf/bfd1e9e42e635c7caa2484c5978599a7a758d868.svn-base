@@ -1,0 +1,34 @@
+package simu.framework;
+
+import java.sql.*;
+
+public class Tietokanta {
+
+	Connection conn;
+	
+	final String URL = "jdbc:mysql://mysql.metropolia.fi/arttupos";
+	final String USERNAME = "arttupos";
+	final String PASSWORD = "r3dDevil";
+	
+	public Tietokanta() {
+		try {
+			conn = DriverManager.getConnection(
+					URL+"?user="+USERNAME+"&password="+PASSWORD);
+		} catch (SQLException e){
+			System.err.println("Haista vittu (eli ei yhteyttä tietokantaan)");
+		}
+	}
+	
+	public void insertPaska(int days, int dayLength, int customer, int points) {
+		try {
+			Statement stmt = conn.createStatement();
+			String date = java.time.LocalDate.now().toString();
+			String query = "INSERT INTO Tulokset(Date,NumberOfDays,DayLength,Customers,Points) "+ "VALUES ('"+date+"',"+days+","+dayLength+","+customer+","+points+")";
+			int count = stmt.executeUpdate(query);
+		} catch (SQLException e) {
+			System.err.println("Haista vittu paska (ei voitu lisätä tietoja tietokantaan)");
+		}
+		
+	}
+	
+}

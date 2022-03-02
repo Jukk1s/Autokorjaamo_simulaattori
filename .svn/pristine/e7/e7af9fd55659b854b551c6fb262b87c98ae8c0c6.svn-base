@@ -1,0 +1,23 @@
+package testi;
+import simu.framework.*;
+import simu.framework.Trace.Level;
+import simu.model.OmaMoottori;
+import simu.model.Pisteet;
+
+public class Simulaattori {
+
+	public static void main(String[] args) {
+		
+		Trace.setTraceLevel(Level.INFO);
+		Moottori m = new OmaMoottori();
+		m.setViive(0);
+		Kello.getInstance().setAvaamisAika(8);
+		Kello.getInstance().setSulkemisAika(17);
+		Kello.getInstance().setPaivat(3);
+		m.setPalvelupisteet(4);
+		m.setTyontekijat(14);
+		m.start();
+		
+	}
+
+}

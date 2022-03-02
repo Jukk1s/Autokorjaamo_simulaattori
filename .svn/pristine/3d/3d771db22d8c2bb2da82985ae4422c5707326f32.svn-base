@@ -1,0 +1,118 @@
+package simu.framework;
+import eduni.distributions.*;
+import simu.model.TapahtumanTyyppi;
+
+public class Tapahtuma implements Comparable<Tapahtuma> {
+	
+		
+	private TapahtumanTyyppi tyyppi;
+	private double aika;
+	private int pisteet;
+	private double keskimAikaMin;
+	private double kesto;
+	
+	private Normal normaalijakauma;
+	
+	
+	public Tapahtuma(TapahtumanTyyppi tyyppi, double aika){
+		this.tyyppi = tyyppi;
+		this.aika = aika;
+		
+		switch(this.tyyppi) {
+			case DEP1: //Renkaiden vaihto
+				this.pisteet = 40;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP1);		
+				break;
+			case DEP2: //Tuulilasin korjaus
+				this.pisteet = 90;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP2);
+				break;
+			case DEP3: //Öljyn vaihto
+				this.pisteet = 20;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP3);
+				break;
+			case DEP4: //Renkaiden vaihto
+				this.pisteet = 60;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP4);
+				break;
+			case DEP5: //Ilmastoinnin täyttö
+				this.pisteet = 30;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP5);
+				break;
+			case DEP6: //Pienet korjaukset
+				this.pisteet = 60;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP6);
+				break;
+			case DEP7: //Isot korjaukset
+				this.pisteet = 240;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP7);
+				break;
+			case DEP8: //Katsastus
+				this.pisteet = 120;
+				this.keskimAikaMin = getKeskimAika(TapahtumanTyyppi.DEP8);
+				break;
+			default:
+				this.pisteet = 0;
+				this.keskimAikaMin = 0;
+		}
+		
+	}
+	
+	public static int getKeskimAika(TapahtumanTyyppi tyyppi) {
+		switch(tyyppi) {
+			case DEP1:
+				return 20;
+			case DEP2:
+				return 45;
+			case DEP3:
+				return 10;
+			case DEP4:
+				return 30;
+			case DEP5:
+				return 15;
+			case DEP6:
+				return 30;
+			case DEP7:
+				return 120;
+			case DEP8:
+				return 60;
+		}
+		return 0;
+	}
+	
+	public int getPisteet() {return pisteet;}
+	
+	public void setArvottuPalveluaika(double kesto) {
+		this.kesto = kesto;
+	}
+	
+	public double getArvottuPalveluaika() {
+		return this.kesto;
+	}
+	
+	public void setTyyppi(TapahtumanTyyppi tyyppi) {
+		this.tyyppi = tyyppi;
+	}
+	public TapahtumanTyyppi getTyyppi() {
+		return tyyppi;
+	}
+	public void setAika(double aika) {
+		this.aika = aika;
+	}
+	public double getAika() {
+		return aika;
+	}
+
+	@Override
+	public int compareTo(Tapahtuma arg) {
+		if (this.aika < arg.aika) return -1;
+		else if (this.aika > arg.aika) return 1;
+		return 0;
+	}
+	
+	@Override
+	public String toString() {
+		return this.tyyppi.toString();
+	}
+	
+}

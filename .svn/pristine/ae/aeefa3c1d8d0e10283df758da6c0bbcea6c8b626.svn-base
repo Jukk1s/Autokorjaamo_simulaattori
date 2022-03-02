@@ -1,0 +1,108 @@
+package simu.framework;
+
+import simu.model.Palvelupiste;
+import simu.view.SimulaattoriMainWindowController;
+
+public abstract class Moottori extends Thread {
+	
+	private int viive = 500;
+	
+	private Kello kello;
+	
+	protected Tapahtumalista tapahtumalista;
+	protected Palvelupiste[] palvelupisteet;
+	
+
+	public Moottori(){
+
+		kello = Kello.getInstance(); // Otetaan kello muuttujaan yksinkertaistamaan koodia
+		
+		kello.setAvaamisAika(8); // Korjaamo avataan oletuksena 8
+		
+		kello.setSulkemisAika(17); // Korjaamo suljetaan oletuksena 17
+		
+		kello.setPaivat(4); // Simulaatio kestää oletuksena 4 päivää
+		
+		tapahtumalista = new Tapahtumalista();
+		
+		// Palvelupisteet luodaan simu.model-pakkauksessa Moottorin aliluokassa 
+		
+		
+	}
+	
+	public void setViive(int viive) {
+		this.viive = viive;
+	}
+	
+	public int getViive() {
+		return this.viive;
+	}
+	
+	public void run(){
+		alustukset(); // luodaan mm. ensimmäinen tapahtuma
+		while (simuloidaan()){
+			kello.setAika(nykyaika());
+			suoritaBTapahtumat();
+			yritaCTapahtumat();
+			try {
+				Thread.sleep(viive);
+			} catch (InterruptedException e) {
+				Trace.out(Trace.Level.INFO, "Moottori ei nukkunut hyvin! *VIHAINEN*");
+			}
+			valiSuoritukset();
+			visualisoi();
+		}
+		tulokset();
+		
+	}
+	
+	private void suoritaBTapahtumat(){
+		while (tapahtumalista.getSeuraavanAika() == kello.getAika()){
+			suoritaTapahtuma(tapahtumalista.poista());
+		}
+	}
+
+	private void yritaCTapahtumat(){
+		for (Palvelupiste p: palvelupisteet){
+			if (!p.onVarattu() && p.onJonossa()){
+				p.aloitaPalvelu();
+			}
+		}
+	}
+	
+	private double nykyaika(){
+		return tapahtumalista.getSeuraavanAika();
+	}
+	
+	private boolean simuloidaan(){
+		Trace.out(Trace.Level.INFO, "Päivä: "+kello.getPaiva()+" - Kello on: " + kello.getAikaKello());
+		if(kello.getPaiva() <= kello.getPaivat()) {
+				return true;
+		}
+		return false;
+		//return (kello.getPaiva() <= kello.getPaivat() && kello.getAika() < kello.getSulkemisAika());
+	}
+	
+			
+
+	protected abstract void alustukset(); // Määritellään simu.model-pakkauksessa Moottorin aliluokassa
+	
+	protected abstract void suoritaTapahtuma(Tapahtuma t);  // Määritellään simu.model-pakkauksessa Moottorin aliluokassa
+	
+	protected abstract void tulokset(); // Määritellään simu.model-pakkauksessa Moottorin aliluokassa
+	
+	protected abstract void visualisoi();
+	
+	protected abstract void valiSuoritukset();
+	
+	protected abstract void paivanVaihdos();
+	
+	public abstract void setTyontekijat(int maara);
+	
+	public abstract void setPalvelupisteet(int maara);
+	
+	public abstract void setController(SimulaattoriMainWindowController controller);
+	
+	
+	
+}

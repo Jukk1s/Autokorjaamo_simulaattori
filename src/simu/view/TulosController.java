@@ -1,0 +1,57 @@
+package simu.view;
+
+import javafx.fxml.FXML;
+import javafx.scene.text.Text;
+import simu.model.Asiakas;
+import simu.model.Pisteet;
+/**
+ * Luokka toimii controllerina tulos-ikkunalle, jotta simulointiajon jälkeen käyttäjä näkee ajon tulokset
+ * @author Arttu
+ *
+ */
+public class TulosController {
+	
+
+	public TulosController() {	}
+	
+	@FXML
+	public void initialize() {
+		Pisteet tempPisteet = Pisteet.getInstance();
+		
+		saapuneet.setText(String.valueOf(Asiakas.getLkm()));
+		poistuneet.setText(String.valueOf(tempPisteet.getAsiakkaat()));
+		lapimenoaikojenKA.setText(String.valueOf(Asiakas.getLapimenoaikojenKA()));
+		tyytyvaisyys.setText(String.valueOf(tempPisteet.getKeskiTyytyvaisyys()));
+		tulot.setText(String.valueOf(tempPisteet.getTulot()));
+		menot.setText(String.valueOf(tempPisteet.getMenot()));
+		pisteet.setText(String.valueOf(tempPisteet.getKokPisteet()));
+	}
+	
+	@FXML
+	private Text saapuneet;
+	
+	@FXML
+	private Text poistuneet;
+	
+	@FXML
+	private Text lapimenoaikojenKA;
+	
+	@FXML
+	private Text tyytyvaisyys;
+	
+	@FXML
+	private Text tulot;
+	
+	@FXML
+	private Text menot;
+	
+	@FXML
+	private Text pisteet;
+	
+	
+	
+	
+	
+	
+
+}

@@ -1,0 +1,96 @@
+package simu.model;
+
+public class Pisteet {
+	
+	private final int MENO1HINTA = 100;
+	private final int MENO2HINTA = 200;
+	
+	private int pisteet; //Kokonais pisteet, todelliset pisteet: pisteet - menot
+	private int menot; //Korjaamopisteisiin ja työntekijöihin menneet menot
+	private int tyytyvaisyys;
+	private int asiakas;
+	private static Pisteet instanssi;
+
+	
+	private Pisteet() {
+		this.pisteet = 0;
+		this.asiakas = 0;
+		this.tyytyvaisyys = 0;
+	}
+	
+	public static Pisteet getInstance() {
+		if (instanssi == null) {
+			instanssi = new Pisteet();
+		}
+		return instanssi;
+	}
+	
+	public void lisaaPisteita(int p) {
+		pisteet += p;
+	}
+	
+	public void lisaaMeno(int m, MenoTyypit tyyppi) {
+		switch(tyyppi) {
+		case MENO1:
+			menot+=m*MENO1HINTA;
+			break;
+		case MENO2:
+			menot+=m*MENO2HINTA;
+			break;
+		default:
+			break;
+		}
+	}
+	
+	public int returnTyytyvaisyys() {
+		return Math.round(tyytyvaisyys/asiakas);
+	}
+	
+	public void lisaaTyytyvaisyys(int t) {
+		tyytyvaisyys += t;
+		asiakas++;
+	}
+
+	public int getTyytyvaisyys() {
+		return tyytyvaisyys;
+	}
+	
+	public int getKeskiTyytyvaisyys() {
+		if(asiakas!=0)
+			return (int) tyytyvaisyys/asiakas;
+		else
+			return 0;
+	}
+
+	public void setTyytyvaisyys(int tyytyvaisyys) {
+		this.tyytyvaisyys = tyytyvaisyys;
+	}
+
+	public int getPisteet() {
+		return pisteet - menot;
+	}
+	
+	public int getMenot() {
+		return menot;
+	}
+	
+	public int getKokPisteet() {
+		return pisteet;
+	}
+	
+	public int getAsiakkaat() {
+		return asiakas; //Palauttaa simulaatiosta poistuneet asiakkaat
+	}
+
+	public void setPisteet(int pisteet) {
+		this.pisteet = pisteet;
+	}
+	
+	public void alusta() {
+		this.pisteet = 0;
+		this.menot = 0;
+		this.asiakas = 0;
+		this.tyytyvaisyys = 0;
+	}
+
+}

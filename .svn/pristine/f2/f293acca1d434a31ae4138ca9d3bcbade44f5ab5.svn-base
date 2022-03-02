@@ -1,0 +1,64 @@
+package testi;
+
+import java.io.IOException;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import simu.framework.Kello;
+import simu.framework.Moottori;
+import simu.framework.Trace;
+import simu.framework.Trace.Level;
+import simu.model.OmaMoottori;
+import simu.view.TestipitsController;
+
+public class Visuaalitesti extends Application {
+	
+	private AnchorPane rootLayout;
+	private Stage primaryStage;
+
+	@Override
+	public void start(Stage primaryStage) {
+		this.primaryStage = primaryStage;
+		initRootLayout();
+	}
+	
+	public void initRootLayout() {
+	    try {
+	        // Load person overview.
+	        FXMLLoader loader = new FXMLLoader();
+	        loader.setLocation(Visuaalitesti.class.getResource("../simu/view/Testipits.fxml"));
+	        rootLayout = (AnchorPane) loader.load();
+	        
+	        Scene scene = new Scene(rootLayout);
+	        primaryStage.setScene(scene);
+
+	        // Give the controller access to the main app.
+	        TestipitsController controller = loader.getController();
+	        controller.setVisuaaliTesti(this);
+	        
+	        primaryStage.show();
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
+	public void startJotain() {
+		Trace.setTraceLevel(Level.INFO);
+		Moottori m = new OmaMoottori();
+		m.setViive(0);
+		Kello.getInstance().setAvaamisAika(8);
+		Kello.getInstance().setSulkemisAika(17);
+		Kello.getInstance().setPaivat(3);
+		m.setPalvelupisteet(8);
+		m.setTyontekijat(8);
+		m.start();
+	}
+}

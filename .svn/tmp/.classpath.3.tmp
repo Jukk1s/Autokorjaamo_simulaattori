@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/mariadbConnector"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX Library"/>
+	<classpathentry kind="src" path="src"/>
+<<<<<<< .mine
+	<classpathentry kind="lib" path="C:/Program Files (x86)/Java/mysql-connector-java-8.0.23/mysql-connector-java-8.0.23.jar"/>
+||||||| .r71
+=======
+>>>>>>> .r72
+	<classpathentry kind="output" path="bin"/>
+</classpath>

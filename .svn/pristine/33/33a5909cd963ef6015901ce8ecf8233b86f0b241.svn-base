@@ -1,0 +1,19 @@
+package simu.view;
+
+import javafx.fxml.FXML;
+import testi.Simulaattori;
+import testi.Visuaalitesti;
+
+public class TestipitsController {
+	
+	private Visuaalitesti visuaalitesti;
+
+	@FXML 
+	private void handleRunButton() {
+		visuaalitesti.startJotain();
+	}
+	
+	public void setVisuaaliTesti(Visuaalitesti visuaalitesti) {
+		this.visuaalitesti = visuaalitesti;
+	}
+}

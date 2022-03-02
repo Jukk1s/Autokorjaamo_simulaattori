@@ -1,0 +1,90 @@
+package simu.framework;
+
+import simu.model.Palvelupiste;
+
+public abstract class Moottori {
+	
+	private double simulointiaika = 0;
+	private int paivienMaara = 0;
+	
+	private Kello kello;
+	
+	protected Tapahtumalista tapahtumalista;
+	protected Palvelupiste[] palvelupisteet;
+	
+
+	public Moottori(){
+
+		kello = Kello.getInstance(); // Otetaan kello muuttujaan yksinkertaistamaan koodia
+		
+		kello.setAvaamisAika(8); // Korjaamo avataan 8
+		
+		kello.setSulkemisAika(17); // Korjaamo suljetaan 17
+		
+		kello.setPaivat(4); // Simulaatio kestää 4 päivää
+		
+		tapahtumalista = new Tapahtumalista();
+		
+		// Palvelupisteet luodaan simu.model-pakkauksessa Moottorin aliluokassa 
+		
+		
+	}
+
+	public void setSimulointiaika(double aika) {
+		simulointiaika = aika;
+	}
+	
+	
+	public void aja(){
+		alustukset(); // luodaan mm. ensimmäinen tapahtuma
+		while (simuloidaan()){
+			kello.setAika(nykyaika());
+			kello.setPaiva(nykypaiva());
+			suoritaBTapahtumat();
+			yritaCTapahtumat();
+
+		}
+		tulokset();
+		
+	}
+	
+	private void suoritaBTapahtumat(){
+		while (tapahtumalista.getSeuraavanAika() == kello.getAika()){
+			suoritaTapahtuma(tapahtumalista.poista());
+		}
+	}
+
+	private void yritaCTapahtumat(){
+		for (Palvelupiste p: palvelupisteet){
+			if (!p.onVarattu() && p.onJonossa()){
+				p.aloitaPalvelu();
+			}
+		}
+	}
+
+	private int nykypaiva() {
+		return tapahtumalista.getSeuraavaPaiva();
+	}
+	
+	private double nykyaika(){
+		return tapahtumalista.getSeuraavanAika();
+	}
+	
+	private boolean simuloidaan(){
+		Trace.out(Trace.Level.INFO, "Päivä: "+kello.getPaiva()+" - Kello on: " + kello.getAika());
+		if(kello.getPaiva() <= kello.getPaivat()) {
+				return true;
+		}
+		return false;
+		//return (kello.getPaiva() <= kello.getPaivat() && kello.getAika() < kello.getSulkemisAika());
+	}
+	
+			
+
+	protected abstract void alustukset(); // Määritellään simu.model-pakkauksessa Moottorin aliluokassa
+	
+	protected abstract void suoritaTapahtuma(Tapahtuma t);  // Määritellään simu.model-pakkauksessa Moottorin aliluokassa
+	
+	protected abstract void tulokset(); // Määritellään simu.model-pakkauksessa Moottorin aliluokassa
+	
+}

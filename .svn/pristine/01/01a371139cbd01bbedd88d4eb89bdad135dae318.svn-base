@@ -1,0 +1,34 @@
+package simu.framework;
+
+import java.util.PriorityQueue;
+
+import simu.model.Pisteet;
+
+public class Tapahtumalista {
+	private PriorityQueue<Tapahtuma> lista = new PriorityQueue<Tapahtuma>();
+	
+	public Tapahtumalista(){
+	 
+	}
+	
+	public Tapahtuma poista(){
+		Trace.out(Trace.Level.INFO,"Tapahtumalistasta poisto " + lista.peek());
+		if(lista.peek()!=null)//Jos listassa on tapahtuma, haetaan tapahtuman ominaisuudet -> pisteet
+			Pisteet.getInstance().lisaaPisteita(lista.peek().getOminaisuudet().getPisteet());
+		return lista.remove();
+	}
+	
+	public void lisaa(Tapahtuma t){
+		lista.add(t);
+	}
+	
+	public double getSeuraavanAika(){
+		return lista.peek().getAika();
+	}
+	
+	public int getSeuraavaPaiva() {
+		return lista.peek().getPaiva();
+	}
+	
+	
+}

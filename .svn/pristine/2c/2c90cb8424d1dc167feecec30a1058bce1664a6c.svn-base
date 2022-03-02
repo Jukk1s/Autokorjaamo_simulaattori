@@ -1,0 +1,31 @@
+package simu.framework;
+
+import java.sql.*;
+
+public class Tietokanta {
+
+	Connection conn;
+	
+	final String URL = "jdbc:mysql://mysql.metropolia.fi/arttupos";
+	final String USERNAME = "arttupos";
+	final String PASSWORD = "r3dDevil";
+	
+	public Tietokanta() {
+		try {
+			conn = DriverManager.getConnection(
+					URL+"?user="+USERNAME+"&password="+PASSWORD);
+		} catch (SQLException e){
+			System.err.println("Haista vittu");
+		}
+	}
+	
+	public void insertPaska() {
+		try {
+			Statement stmt = conn.createStatement();
+		} catch (SQLException e) {
+			System.err.println("Haista vittu paska");
+		}
+		
+	}
+	
+}

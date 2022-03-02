@@ -1,0 +1,7 @@
+package simu.model;
+
+public enum MenoTyypit {
+
+	MENO1,//tyontekija
+	MENO2//korjaamopiste
+}

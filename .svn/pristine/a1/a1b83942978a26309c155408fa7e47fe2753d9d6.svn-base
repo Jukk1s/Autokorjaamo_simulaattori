@@ -1,0 +1,168 @@
+package simu.model;
+
+import java.util.ArrayList;
+
+/**
+ * Jokaiselle tietokannasta haetulle tulokselle luodaan oma Tulos-olio.
+ * 
+ * @author Eljas Hirvelä
+ *
+ */
+public class Tulos implements Comparable<Tulos> {
+	private int id;
+	private String pvm;
+	private int tyytyvaisuus;
+	private int palvelupisteet;
+	private int tyontekijat;
+	private int raha;
+	private int saapuneetasiakkaat;
+	private int poistuneetasiakkaat;
+	private int avaamisAika;
+	private int sulkemisAika;
+	private int paivat;
+	
+	private ArrayList<PalvelupisteDAO> tyopisteet;
+	
+	static int vertaus = 0;
+	
+	public Tulos() {
+		id = 0;
+		pvm="";
+		tyytyvaisuus = 0;
+		palvelupisteet = 0;
+		tyontekijat = 0;
+		raha = 0;
+		saapuneetasiakkaat = 0;
+		poistuneetasiakkaat = 0;
+		avaamisAika = 0;
+		sulkemisAika = 0;
+		paivat = 0;
+		tyopisteet = new ArrayList<>();
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public String getPvm() {
+		return pvm;
+	}
+	public void setPvm(String pvm) {
+		this.pvm = pvm;
+	}
+	
+	public double getKeskRaha() {
+		return Math.round(raha / paivat * 100.0)/100.0;
+	}
+	
+	public double getKeskAsiakkaat() {
+		return Math.round(poistuneetasiakkaat / paivat * 100.0)/100.0;
+	}
+	
+	public double getKeskPisteet() {
+		return Math.round(getPisteet() / paivat * 100.0)/100.0;
+	}
+	
+	public int getTyytyvaisuus() {
+		return tyytyvaisuus;
+	}
+	public void setTyytyvaisuus(int tyytyvaisuus) {
+		this.tyytyvaisuus = tyytyvaisuus;
+	}
+	
+	public int getPalvelupisteet() {
+		return palvelupisteet;
+	}
+	public void setPalvelupisteet(int palvelupisteet) {
+		this.palvelupisteet = palvelupisteet;
+	}
+	
+	public int getTyontekijat() {
+		return tyontekijat;
+	}
+	public void setTyontekijat(int tyontekijat) {
+		this.tyontekijat = tyontekijat;
+	}
+	
+	public int getRaha() {
+		return raha;
+	}
+	public void setRaha(int raha) {
+		this.raha = raha;
+	}
+	
+	public int getPoistuneetAsiakkaat() {
+		return poistuneetasiakkaat;
+	}
+	public void setPoistuneetAsiakkaat(int asiakkaat) {
+		this.poistuneetasiakkaat = asiakkaat;
+	}
+	
+	public int getSaapuneetAsiakkaat() {
+		return saapuneetasiakkaat;
+	}
+	public void setSaapuneetAsiakkaat(int asiakkaat) {
+		this.saapuneetasiakkaat = asiakkaat;
+	}
+	
+	public int getPisteet() {
+		return (int) (Math.round(raha * ((double)tyytyvaisuus/100)*100.0)/100.0);
+	}
+	
+	public int getAvaamisAika() {
+		return avaamisAika;
+	}
+	public void setAvaamisAika(int avaamisAika) {
+		this.avaamisAika = avaamisAika;
+	}
+	
+	public int getSulkemisAika() {
+		return sulkemisAika;
+	}
+	public void setSulkemisAika(int sulkemisAika) {
+		this.sulkemisAika = sulkemisAika;
+	}
+	
+	public int getPaivat() {
+		return paivat;
+	}
+	public void setPaivat(int paivat) {
+		this.paivat = paivat;
+	}
+	
+	public static void setVertaus(int v) {
+		vertaus = v;
+	}
+	
+	public void addTyopistee(PalvelupisteDAO pp) {
+		tyopisteet.add(pp);
+	}
+	
+	public ArrayList<PalvelupisteDAO> getTyopisteet() {
+		return tyopisteet;
+	}
+	
+	@Override
+	public String toString() {
+		String verrattava="";
+		if(vertaus==0)
+			verrattava = Double.toString(getKeskPisteet())+" pistettä/pv";
+		else if(vertaus==1)
+			verrattava = Double.toString(getKeskAsiakkaat())+" asiakasta/pv";
+		else
+			verrattava = Double.toString(getKeskRaha())+" €/pv";
+		return pvm + " | "+verrattava;
+	}
+	
+	public int compareTo(Tulos t) {
+		if(vertaus==0)
+			return (int) t.getKeskPisteet() - (int) getKeskPisteet();
+		if(vertaus==1)
+			return (int) t.getKeskAsiakkaat() - (int) getKeskAsiakkaat();
+		return (int) t.getKeskRaha() - (int) getKeskRaha();
+	}
+}

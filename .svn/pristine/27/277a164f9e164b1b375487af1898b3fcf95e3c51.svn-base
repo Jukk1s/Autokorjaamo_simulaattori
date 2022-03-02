@@ -1,0 +1,195 @@
+package simu.model;
+
+import eduni.distributions.Negexp;
+import eduni.distributions.Normal;
+import simu.framework.Kello;
+import simu.framework.Moottori;
+import simu.framework.Saapumisprosessi;
+import simu.framework.Tapahtuma;
+import simu.framework.Tietokanta;
+import simu.framework.Trace;
+import simu.view.SimulaattoriMainWindowController;
+
+public class OmaMoottori extends Moottori{
+	
+	private Saapumisprosessi saapumisprosessi;
+	private int tyontekijatLKM;
+	private int palvelupisteidenLKM;
+	private Tietokanta tietokanta;
+	private int paiva;
+	
+	private SimulaattoriMainWindowController controller;
+	
+	public OmaMoottori(){
+		
+	}
+
+	
+	@Override
+	protected void alustukset() {
+		
+		Palvelupiste.resetId();
+		
+		//Nollataan kello sekä pisteet, asiakkaat yms.
+		Kello.getInstance().nollaaKello();
+		Pisteet.getInstance().alusta();
+		Asiakas.nollaaLkm();
+		Kello.getInstance().tarkistaKello();
+		
+		paiva = Kello.getInstance().getPaiva();
+		
+		//Varmistetaan että on vähintään kaksi palvelupistettä: tiski ja korjaamo
+		if(palvelupisteidenLKM<2)
+			palvelupisteidenLKM = 2;
+				
+		//Varmistetaan että on ainakin yksi työntekijä per palvelupiste
+		if(tyontekijatLKM < palvelupisteidenLKM)
+			tyontekijatLKM = palvelupisteidenLKM;
+		
+		palvelupisteet = new Palvelupiste[palvelupisteidenLKM];
+		
+		palvelupisteet[0] = new Palvelupiste(new Normal(10,6), tapahtumalista, TapahtumanTyyppi.ARR1);
+		
+		for(int i = 1 ; i < palvelupisteidenLKM; i++) {
+			palvelupisteet[i] = new Palvelupiste(new Normal(10,6), tapahtumalista, TapahtumanTyyppi.DEP1);
+		}
+		
+		palvelupisteet[0].setTyontekijat(1); //Tiski tarvitsee vain yhden työntekijän
+		
+		//i = 1, koska yksi työntekijä asetettiin jo tiskille töihin
+		for(int i = 1; i < tyontekijatLKM;i++) {
+			
+			//Jos on useampi korjauspiste:
+			//Etsitään mihin palvelupisteeseen asetetaan seuraava työntekijä
+			//jotta työntekijät jakautuvat tasaisesti
+			int indexSeuraava = 1;
+			if(palvelupisteet.length>2) {
+				for(int j = 1; j < (palvelupisteet.length); j++) {
+					if(palvelupisteet[j].getTyontekijat()<=palvelupisteet[indexSeuraava].getTyontekijat()) {
+						indexSeuraava=j;
+					}
+				}
+			}
+			palvelupisteet[indexSeuraava].increaseTyontekijat();
+		}
+		
+		controller.setPalvelupisteet(palvelupisteet);
+
+		saapumisprosessi = new Saapumisprosessi(new Negexp(20,10), tapahtumalista, TapahtumanTyyppi.ARR1);
+		
+		saapumisprosessi.generoiSeuraava(); // Ensimmäinen saapuminen järjestelmään
+	}
+	
+	
+	@Override
+	protected void suoritaTapahtuma(Tapahtuma t){  // B-vaiheen tapahtumat
+		
+		if(t.getTyyppi()==TapahtumanTyyppi.ARR1) {
+			
+			palvelupisteet[0].lisaaJonoon(new Asiakas());	
+			saapumisprosessi.generoiSeuraava();	
+			
+			//Käydään kaikki palvelupisteet paitsi indeksin "0", eli
+			//vastaanotto
+			Palvelupiste lyhyin = palvelupisteet[1];
+			for(int i = 1; i < palvelupisteet.length; i++) {
+				if(lyhyin.getJononPituus()>palvelupisteet[i].getJononPituus())
+					lyhyin = palvelupisteet[i];
+			}
+			Asiakas a = palvelupisteet[0].poistaJonosta();
+			lyhyin.lisaaJonoon(a);
+			
+		} else {
+			for(Palvelupiste p : palvelupisteet) {
+				if (p.vertaaTapahtumaan(t)) {
+					Asiakas a = p.poistaJonosta();
+					a.setPoistumisaika(Kello.getInstance().getAika());
+					a.setTyytyvaisyys();
+					Pisteet.getInstance().lisaaTyytyvaisyys(a.getTyytyvaisyys());					
+					
+					TapahtumanTyyppi tyyppi = a.getTapahtuma();
+					
+					if(tyyppi!=TapahtumanTyyppi.ARR1){//Jos listassa on tapahtuma, haetaan tapahtuman ominaisuudet -> pisteet
+						Pisteet.getInstance().lisaaTulo(t.getTulot());
+						p.lisaaTulo(t.getTulot());
+					} 
+				
+					a.raportti();
+					break;
+				}
+			}
+		}
+	}
+	
+	public void setTyontekijat(int maara) {
+		//Vähintään yksi työntekijä per piste
+		if(maara < palvelupisteidenLKM)
+			maara = palvelupisteidenLKM;
+		this.tyontekijatLKM = maara;
+	}
+	
+	public void setPalvelupisteet(int maara) {
+		if(maara < 2) //Vähintään tiski ja yksi korjauspiste
+			maara = 2;
+		this.palvelupisteidenLKM = maara;
+	}
+	
+	public static double arvoAika(double keskiarvo, double varianssi) {
+		Normal normal = new Normal(keskiarvo, varianssi);
+		double aika = normal.sample();
+		return aika;
+	}
+	
+	public void setController(SimulaattoriMainWindowController controller) {
+		this.controller = controller;
+	}
+	
+	protected void valiSuoritukset() {
+		if(paiva < Kello.getInstance().getPaiva()) {
+			paiva = Kello.getInstance().getPaiva();
+			paivanVaihdos();
+		}
+	}
+	
+	protected void paivanVaihdos() {
+		Pisteet.getInstance().lisaaMeno(tyontekijatLKM, MenoTyypit.MENO1);
+		Pisteet.getInstance().lisaaMeno(palvelupisteidenLKM-1, MenoTyypit.MENO2);
+	}
+	
+	protected void visualisoi() {
+		if(controller != null) {
+			controller.paivitaArvot();
+		}
+	}
+
+	
+	@Override
+	protected void tulokset() {	
+		
+		int tiskiJonossa = palvelupisteet[0].getJononPituus();
+		int paljonoissa = 0;
+		for(int i = 1; i < palvelupisteet.length; i++) {
+			paljonoissa+=palvelupisteet[i].getJononPituus();
+		}
+		
+		System.out.println("Simulointi päättyi kello " + Kello.getInstance().getAikaKello());
+		System.out.println("Autokorjaamo ansaitsi "+Pisteet.getInstance().getTulotMiinusMenot()+" euroa");
+		System.out.println("Asiakkaita yhteensä " + Asiakas.getLkm()+", asiakkaita poistui: "+Pisteet.getInstance().getAsiakkaat());
+		System.out.println("Asiakkaita jäi tiskin jonoon " + tiskiJonossa +", asiakkaita korjaamon jonoissa: "+paljonoissa);
+		System.out.println("Tyytyväisyyden keskiarvo: "+Pisteet.getInstance().getKeskiTyytyvaisyys()+"%");
+		System.out.println("Pisteet: " + Pisteet.getInstance().getKokPisteet());
+		System.out.println("\n");
+		for(int i = 0; i < palvelupisteet.length;i++) {
+			System.out.println("Palvelupisteellä ["+i+"] on "+palvelupisteet[i].getTyontekijat()+" työntekijää ja asiakkaita kävi "+palvelupisteet[i].getAsiakkaat());
+		}
+		tietokanta = new Tietokanta();
+		Kello tempKello = Kello.getInstance();
+		Pisteet tempPisteet = Pisteet.getInstance();
+		tietokanta.lisaaRivi(tempPisteet.getKokPisteet(), tempPisteet.getAsiakkaat(), tempPisteet.getKeskiTyytyvaisyys(), 
+				palvelupisteidenLKM-1, tyontekijatLKM, tempKello.getAvaamisAika(), tempKello.getSulkemisAika(), tempKello.getPaivat());
+		if(controller != null)
+			controller.stopSimulaatio();
+	}
+
+	
+}

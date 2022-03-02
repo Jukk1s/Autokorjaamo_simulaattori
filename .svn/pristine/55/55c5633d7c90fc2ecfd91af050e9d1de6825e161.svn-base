@@ -1,0 +1,112 @@
+package simu.framework;
+
+import java.sql.*;
+import java.util.ArrayList;
+
+import simu.model.Tulos;
+
+public class Tietokanta {
+
+	Connection conn;
+	
+	final String URL = "jdbc:mysql://mysql.metropolia.fi/arttupos";
+	final String USERNAME = "arttupos";
+	final String PASSWORD = "r3dDevil";
+	
+	public Tietokanta() {
+		try {
+			conn = DriverManager.getConnection(
+					URL+"?user="+USERNAME+"&password="+PASSWORD);
+		} catch (SQLException e){
+			System.err.println("Ei saatu yhteyttä tietokantaan! Onko VPN yhteys?");
+		}
+	}
+	
+	public ArrayList<Tulos> haeTulokset() {
+		ArrayList<Tulos> tulokset = new ArrayList<>();
+		try {
+			
+			//Pvm,KeskRahaPv,KeskAsiakkaatPv,KeskPisteetPv, Tyytyvaisuus, Palvelupisteet, Tyontekijat, Raha, Asiakkaat, Pisteet, AvaamisAika, SulkemisAika, Paivat
+			Statement stmt = conn.createStatement();
+			String query = "SELECT "
+					+ "Id, Pvm, Tyytyvaisuus, Palvelupisteet, Tyontekijat, Raha, SaapuneetAsiakkaat, PoistuneetAsiakkaat, AvaamisAika, SulkemisAika, Paivat"+
+					" FROM Tulokset";
+			ResultSet rs = stmt.executeQuery(query);
+			int x = 0;
+			while (rs.next()) {
+				Tulos t = new Tulos();
+				t.setId(rs.getInt("Id"));
+				t.setPvm(rs.getString("Pvm"));
+				t.setTyytyvaisuus(rs.getInt("Tyytyvaisuus"));
+				t.setPalvelupisteet(rs.getInt("Palvelupisteet"));
+				t.setTyontekijat(rs.getInt("Tyontekijat"));
+				t.setRaha(rs.getInt("Raha"));
+				t.setSaapuneetAsiakkaat(rs.getInt("SaapuneetAsiakkaat"));
+				t.setPoistuneetAsiakkaat(rs.getInt("PoistuneetAsiakkaat"));
+				t.setAvaamisAika(rs.getInt("AvaamisAika"));
+				t.setSulkemisAika(rs.getInt("SulkemisAika"));
+				t.setPaivat(rs.getInt("Paivat"));
+				tulokset.add(t);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return tulokset;
+	}
+	
+	public void lisaaRivi(int rahat, int saapuneetasiakkaat, int poistuneetasiakkaat, int tyytyvaisuus, int palvelupisteet, int tyontekijat, int avaamisAika, int sulkemisAika, int paivat) {
+		
+		
+		/*double pisteet = Math.round(rahat * ((double)tyytyvaisuus/100)*100.0)/100.0;*/
+		if(paivat == 0)
+			paivat = 1;
+		/*double keskRaha = Math.round(rahat / paivat*100.0)/100.0;
+		double keskAsiakkaat = Math.round(asiakkaat / paivat*100.0)/100.0;
+		double keskPisteet = Math.round(pisteet / paivat*100.0)/100.0;
+		int pisteetInt = (int) pisteet;*/
+		
+		try {
+			String date = java.time.LocalDate.now().toString();
+			
+			String query = "INSERT INTO Tulokset(Pvm, Tyytyvaisuus, Palvelupisteet, "
+					+ "Tyontekijat, Raha, SaapuneetAsiakkaat, PoistuneetAsiakkaat, AvaamisAika, SulkemisAika, Paivat) "+ 
+					"VALUES ('"+date+"',"+tyytyvaisuus+","
+					+ palvelupisteet+"," + tyontekijat + ","+ rahat + "," + saapuneetasiakkaat + "," + poistuneetasiakkaat + ","
+					+ avaamisAika +","+sulkemisAika+","+paivat+")";
+			PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			int affectedRows = stmt.executeUpdate();
+			if(affectedRows == 0) {
+				throw new SQLException("Tuloksen lähettäminen tietokantaan epäonnistui.");
+			}
+			try(ResultSet avaimet = stmt.getGeneratedKeys()){
+				if(avaimet.next()) {
+					System.out.println(avaimet.getLong(1));
+				} else {
+					throw new SQLException("Uuden tietokantarivin id:tä ei palautettu.");
+				}
+			}
+					
+		} catch (SQLException e) {
+			System.err.println("Tietokantaan ei saatu yhteyttä. Onko VPN yhteys päällä?");
+		}
+		
+		/*
+		try {
+		Statement stmt = conn.createStatement();
+		String date = java.time.LocalDate.now().toString();
+		
+		String query = "INSERT INTO Tulokset(Pvm,KeskRahaPv,KeskAsiakkaatPv,KeskPisteetPv, Tyytyvaisuus, Palvelupisteet, "
+				+ "Tyontekijat, Raha, Asiakkaat, Pisteet, AvaamisAika, SulkemisAika, Paivat) "+ 
+				"VALUES ('"+date+"',"+keskRaha+","+keskAsiakkaat+","+keskPisteet+","+tyytyvaisuus+","
+				+ palvelupisteet+"," + tyontekijat + ","+ rahat + "," + asiakkaat + "," + pisteetInt + ","
+				+ avaamisAika +","+sulkemisAika+","+paivat+")";
+		stmt.executeUpdate(query);
+		
+		} catch (SQLException e) {
+			System.err.println("Tietokantaan ei saatu yhteyttä. Onko VPN yhteys päällä?");
+		}
+		*/
+	}
+	
+}
